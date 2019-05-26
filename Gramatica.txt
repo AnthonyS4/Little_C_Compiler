@@ -1,0 +1,179 @@
+Pruebas de la traduccion:
+
+int a = 1 * 9; 
+    int b = 3 - a;
+    int c = b * a;
+    int d = c / a;
+    a = (1 && 9) || 0;  
+    int e = (a + a) % 2;
+    return e;
+
+
+epsilon -> \epsilon
+
+entrada -> epsilon
+    |   -> entrada function_body
+    |   -> entrada declaracion ";"  
+
+function_body   ->  TIPO ID '(' args_list ')' '{' instruction '}'
+    |           ->  TIPO ID '(' ')' '{ instruction '}'
+
+args_list   ->  TIPO ID args_list
+    |       -> ',' TIPO ID args_list
+
+instruction -> epsilon 
+    |       -> instruction sentencia
+
+sentencia   -> IF '(' expresion ')' '{' instruction '}'
+    |       -> IF '(' expresion ')' '{' instruction '}' ELSE '{' instruction '}'
+    |       -> WHILE '(' expresion ')' sentencia 
+    |       -> WHILE '(' expresion ')' '{' instruction '}' 
+    |       -> declaracion ";"                                      int a; 
+    |       -> asignacion  ";"                                     a = 9;
+    |       -> function    ";"                                     proc(a);//Procedimiento
+    |       -> unario      ";"                                     8 + 8;
+    |       -> devolver    ";"
+    |       -> expression ";"
+
+devolver    -> RETURN expresion                                           return 9 + a                                 
+    |       -> RETURN function                                         return suma(x,y)                                
+
+declaracion -> TIPO ID                                          int b;
+    |       -> TIPO ID asignar                                  int c = !(b + a);
+    |       -> TIPO array                                       float f[10][int_random_between(1,10)];
+    |       -> TIPO array asignar                               float F[2][2][2] = crear_matriz3D();   
+    |       -> TIPO array asig_tupla                        int vector[2][2][2] = {{{2,2},{2,2}},{{2,2},{2,2}}};
+
+asig_tupla  -> '=' conjunto                                {{1,2,3},{4,5,6}}
+
+contenido   ->  conjunto ',' conjunto                       {{...},{...}}
+    |       ->  contenido ',' factor                          1,2,3
+    |       ->  factor
+
+conjunto    ->  '{' contenido '}'
+
+asignacion  -> ID asignar                                       b = 10;
+    |       -> array asignar                                    f[9][1] = b;
+
+asignar     -> '=' ID                                           = c;        
+    |       -> '=' array                                        = f[6][6];
+    |       -> '=' unario                                       = (!(10 < 10) + 4)/c;
+    |       -> '=' function                                     = crear_matriz(3,2);
+    |       -> '=' CADENA                                       = "Hola";
+
+function    -> ID '(' argumentos ')'                              sqrt(54.2);
+    |       -> PRINTF "(" CADENA resto ")"                        printf("Valor %d", a);  
+    |       -> SCANF "(" CADENA scanf_args ")"                    scanf("%d", &a);
+
+resto       -> ',' INT resto
+    |       -> ',' ID resto
+    |       -> ',' function resto
+    |       ->  epsilon
+
+scanf_args  -> ',' '&' ID
+    |       -> ', '&' ID scanf_args
+
+argumentos  -> valores                                                 54.2
+    |       -> valores ',' argumentos                                  54.2, 54.2, ...
+    
+valores     -> CADENA                                               
+    |       -> ID
+    |       -> unario
+    |       -> function                                                
+
+or_         -> unario
+    |       -> or_ OR factor
+    
+and_        -> and_ AND or_
+    |       -> or_
+
+comparing   -> comparing EQUAL and_
+    |       -> comparing NOT_EQ and_
+    |       -> and_
+
+logicos     -> logicos '<' comparing
+    |       -> logicos '>' comparing
+    |       -> logicos GRE_EQ comparing
+    |       -> logicos LESS_EQ comparing
+    |       -> comparing
+    
+sum_res     -> sum_res '+' logicos {    crearNodoSuma()     }
+    |       -> sum_res '-' logicos {    crearNodoResta()    }
+    |       -> logicos
+
+expresion   -> expresion '/' sum_res {  crearNodoDiv()  }
+    |       -> expresion '*' sum_res {  crearNodoProd() }
+    |       -> expresion '%' sum_res {  crearNodoMod()  }
+    |       -> CHECK '(' ID ')'
+    |       -> sum_res
+
+unario      -> '-' unario           {   crearNodoMinus()    }
+    |       -> '!' unario          {   crearNodo Nega()    }
+    |       -> factor
+
+array       -> ID dimension
+
+dimension   -> '[' factor ']'
+    |       -> dimension '[' factor ']'
+
+cor_par_pun -> ID POINT ID                                      miEstructura.entero;
+    |       -> array                                            a[1][2][1];
+    |       -> ID R_ARRAY ID                                    puntero->value;     
+
+factor      -> ID       {   crearNodoID()   }
+    |       -> cor_par-pun
+    |       -> INT      {   crearNodoInt()  }
+    |       -> FLOAT    {   crearNodoFloat()    }
+    |       -> '(' expresion ')' {  crearNodoParent()   }
+
+--------------------------------------------------------------------------------------------------------------------------
+Notas:
+
+
+condicional -> IF condicion '{' instruction '}'
+    |       -> IF condicion '{' instruction '}' ELSE '{' instruction '}'
+    |       -> IF condicion instruction
+    |       -> IF condicion instruction ELSE instruction
+
+condicion   -> '(' expresion ')'
+    
+
+
+-Se puede hacer:
+    const char hola[5] = "hola";
+    const char *p; 
+    p = "hola";
+
+-Y no se puede:
+    const char hola[5]; 
+    hola = "hola; 
+
+-Arreglar:
++Este codigo se puede ejecutar:
+    #include <stdio.h>
+    int make_ints(int n,int m); 
+    int vec(int a);
+    int main(){
+        int vec[2][2][2];
+        vec[1][1][0] = make_ints(1,4);//Si pusieramos vec[1][1][0] = vec(1); Daria un error de compilasao.
+        printf("%d\n",vec[1][1][0]);
+    }
+    int make_ints(int n,int m){
+        return vec(1);
+    }
+    int vec(int a){
+        return a;
+    }
+
+-Guardado de cabeceras de funcion, pero eso mas adelante.
+-Checkeo de tipos y condicionales semanticamente correctos.
+
+
+
+
+
+
+
+
+
+
